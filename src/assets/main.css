@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+	.router-link-exact-active {
+		@apply text-orange-400;
+	}
+	.router-link-active {
+		@apply text-blue-500  border-b border-b-blue-500 p-1 font-medium m-2;
+	}
+	a {
+		@apply text-green-400 border-b border-b-transparent p-1 font-medium m-2;
+	}
+	a:hover {
+		@apply text-emerald-500;
+	}
+	.refreshBtn {
+		@apply px-3 py-1 bg-gradient-to-bl  from-indigo-700 to-slate-800 rounded-md font-medium  duration-500;
+	}
+	.infoBtn {
+		@apply px-3 py-1 bg-gradient-to-tr  from-green-700 to-cyan-700 rounded-md font-medium  duration-500;
+	}
+	.deleteBtn {
+		@apply px-3 py-1 bg-gradient-to-bl  from-red-600 to-orange-800 rounded-md font-medium  duration-500;
+	}
+	.revertBtn {
+		@apply px-3 py-1 bg-gradient-to-bl  from-yellow-600 to-orange-800 rounded-md font-medium  duration-500;
+	}
+	.editable {
+		@apply outline-none border-b border-b-green-400 border-opacity-40 pb-1;
+	}
+	.readonly {
+		@apply outline-none bg-transparent mb-5 text-xl;
+	}
+	.input {
+		@apply outline-none border-b-2 my-5 border-b-green-400 py-1 px-3 rounded-t text-xl bg-slate-700;
+	}
+}
+
+@layer base {
+	h1 {
+		@apply text-5xl;
+	}
+	h2 {
+		@apply text-4xl;
+	}
+	h3 {
+		@apply text-3xl;
+	}
+	h4 {
+		@apply text-2xl;
+	}
+	p,
+	span {
+		@apply text-lg;
+	}
+	label {
+		@apply text-3xl font-medium;
+	}
+}
+* {
+	box-sizing: border-box;
+	font-family: "roboto", sans-serif;
+}
+html {
+	scroll-behavior: smooth !important;
+}
