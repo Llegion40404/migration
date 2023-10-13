@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, type Ref } from "vue";
+import { onMounted, ref, type Ref } from "vue";
 import TaskItem from "../components/TaskItem.vue";
 import { type Task } from "../types/Task";
 import { toast } from "vue3-toastify";
 import { immutable } from "../composables/immutable";
-import { useRoute } from "vue-router";
 const filters = [
 	"Priority",
 	"Name",
@@ -16,23 +15,21 @@ const filters = [
 ];
 const tasks: Ref<Task[]> = ref([]);
 const using: Ref<string[]> = ref([]);
-const { meta } = useRoute();
 
 let old: Task[] = [];
 function deleteTask(id: string) {
 	try {
 		let idx = tasks.value.findIndex((t) => t.id == id);
-
 		toast(
-			`Deleted task\n\nTitle: ${tasks.value[idx].title}\n\ID: ${tasks.value[idx].id}\n\n<b>Click on me to revert changes or just close me to keep changes</b>`,
+			`Deleted task\n\nTitle: ${old[idx].title}\n\ID: ${old[idx].id}\n\n<b>Click on me to revert changes</b>`,
 			{
 				type: "warning",
 				autoClose: 6000,
-				dangerouslyHTMLString: true,
 				onClick: revert,
+				containerId: "toastify",
 			}
 		);
-		tasks.value.splice(idx, 1);
+		tasks.value = tasks.value.filter((task) => task.id !== id);
 		localStorage.setItem("tasks", JSON.stringify(tasks.value));
 	} catch (e) {
 		toast("Error: " + e, { type: "error" });
@@ -59,15 +56,14 @@ function revert() {
 }
 
 onMounted(() => {
-	tasks.value = computed(() =>
-		JSON.parse(localStorage.getItem("tasks")!)
-	).value;
+	tasks.value = JSON.parse(localStorage.getItem("tasks")!) || [];
 	old = immutable(tasks.value);
 });
 </script>
 
 <template>
 	<section>
+		<div id="toastify"></div>
 		<section
 			class="bg-stone-700 mx-auto w-1/2 p-5 flex items-center justify-between">
 			<h3>Filter by:</h3>

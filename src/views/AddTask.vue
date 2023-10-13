@@ -6,8 +6,6 @@ import type { Task } from "../types/Task";
 import { toast } from "vue3-toastify";
 import router from "../router/index";
 
-const emits = defineEmits(["created"]);
-
 const todo: Task = reactive({
 	id: uid(),
 	title: "",
@@ -41,14 +39,19 @@ function addOpt() {
 
 function createTask() {
 	if (todo.title.length > 0) {
-		let tasks = JSON.parse(localStorage.getItem("tasks") as string);
+		let tasks = JSON.parse(localStorage.getItem("tasks") as string) || [];
 		tasks = [todo, ...tasks];
 		localStorage.setItem("tasks", JSON.stringify(tasks));
-		emits("created");
-		router.push({ name: "list", state: { created: "true" } });
-		toast("New task created!", { type: "success", hideProgressBar: true });
+		router.push({ name: "list" });
+		toast("New task created!", {
+			type: "success",
+			hideProgressBar: true,
+			closeOnClick: true,
+		});
 	} else {
-		toast(`Fill in the "Title" field at least!`, { type: "error" });
+		toast(`Fill in the "Title" field at least!`, {
+			type: "error",
+		});
 	}
 	todo.description = "";
 	todo.title = "";
@@ -135,7 +138,10 @@ function createTask() {
 				</select>
 			</label>
 		</section>
-		<button @click="createTask" class="revertBtn p-3 mt-10 float-right">
+		<button
+			@keydown.enter="createTask"
+			@click="createTask"
+			class="revertBtn p-3 mt-10 float-right">
 			Create todo
 		</button>
 	</main>

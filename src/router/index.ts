@@ -9,7 +9,6 @@ const router = createRouter({
 			name: "list",
 			component: TaskListVue,
 			props: true,
-			beforeEnter: (to, from) => {},
 		},
 		{
 			path: "/create",

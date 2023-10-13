@@ -14,6 +14,8 @@ app.use(Vue3Toastify, {
 	autoClose: 3000,
 	theme: "dark",
 	limit: 5,
+	containerId: "wrapper",
+	closeOnClick: false,
 } as ToastContainerOptions);
 app.use(createPinia());
 app.use(router);

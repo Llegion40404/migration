@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, type Ref } from "vue";
 import { type Task } from "../types/Task";
 import { toast } from "vue3-toastify";
 import { immutable } from "../composables/immutable";
-import SureVue from "./Sure.vue";
 
 const props = defineProps<{
 	task: Task;
@@ -13,14 +12,18 @@ const editing = ref(false);
 const open = ref(false);
 
 const todo = ref(props.task);
+const dom: Ref<HTMLDivElement> = ref(null);
 const optVal = ref("");
 const isOptOpen = ref(false);
-const uSure = ref(false);
 
 const conditions = ["done", "in-progress", "todo"];
 let old = immutable(props.task);
 
+function scroll() {
+	dom.value.scrollTo({ top: 0 });
+}
 function saveChanges() {
+	scroll();
 	old = immutable(todo.value);
 	open.value = false;
 	editing.value = false;
@@ -29,6 +32,7 @@ function saveChanges() {
 }
 
 function toggleTodo() {
+	scroll();
 	open.value = !open.value;
 	if (editing.value) {
 		cancelEditing();
@@ -38,6 +42,7 @@ function toggleTodo() {
 }
 
 function cancelEditing() {
+	scroll();
 	if (editing.value) {
 		todo.value = immutable(old);
 		editing.value = false;
@@ -45,12 +50,6 @@ function cancelEditing() {
 	} else {
 		editing.value = true;
 		open.value = true;
-	}
-}
-function deleteTask(bool: boolean) {
-	uSure.value = false;
-	if (bool) {
-		emits("deleteTask", todo.value.id);
 	}
 }
 function removeOpt(find: string) {
@@ -72,6 +71,7 @@ function addOpt() {
 
 <template>
 	<div
+		ref="dom"
 		class="w-[45%] p-4 overflow-hidden duration-300 rounded-md bg-gray-500 bg-opacity-30"
 		:class="open ? 'h-[470px] overflow-y-scroll' : 'h-28'">
 		<header class="flex justify-between relative">
@@ -88,8 +88,10 @@ function addOpt() {
 						:class="editing ? 'editable' : ''" />
 				</div>
 				<div>
-					<button @click="cancelEditing" class="refreshBtn mr-3">Edit</button>
-					<button @click="toggleTodo" class="infoBtn">
+					<button tabindex="-1" @click="cancelEditing" class="refreshBtn mr-3">
+						Edit
+					</button>
+					<button tabindex="-1" @click="toggleTodo" class="infoBtn">
 						{{ editing || open ? "Close" : "Expand" }}
 					</button>
 				</div>
@@ -176,9 +178,12 @@ function addOpt() {
 							editing ? 'editable bg-gray-700 px-2 py-1 rounded z-50' : ''
 						"
 						type="text" />
-					<button @click="addOpt" class="revertBtn float-right">Ok</button>
+					<button tabindex="-1" @click="addOpt" class="revertBtn float-right">
+						Ok
+					</button>
 				</div>
 				<button
+					tabindex="-1"
 					v-show="editing"
 					@click="isOptOpen = true"
 					class="refreshBtn w-max mb-3">
@@ -229,19 +234,26 @@ function addOpt() {
 			</article>
 			<footer class="pt-10 flex justify-between">
 				<div>
-					<SureVue v-if="uSure" @confirm="deleteTask" />
-					<button @click="uSure = true" class="deleteBtn py-2">
+					<button
+						tabindex="-1"
+						@click="emits('deleteTask', todo.id)"
+						class="deleteBtn py-2">
 						Delete task
 					</button>
 				</div>
 				<div>
 					<button
+						tabindex="-1"
 						v-show="editing"
 						@click="cancelEditing"
 						class="deleteBtn mr-5">
 						Cancel
 					</button>
-					<button v-show="editing" @click="saveChanges" class="refreshBtn">
+					<button
+						tabindex="-1"
+						v-show="editing"
+						@click="saveChanges"
+						class="refreshBtn">
 						Save
 					</button>
 				</div>
