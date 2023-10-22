@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import { datetime } from "../composables/getDate";
+import { datetime } from "../composables/tools/getDate";
 import { v4 as uid } from "uuid";
 import type { Task } from "../types/Task";
 import { toast } from "vue3-toastify";
 import router from "../router/index";
+import { postTodo } from "../composables/API/postTodo";
 
 const todo: Task = reactive({
 	id: uid(),
@@ -37,11 +38,9 @@ function addOpt() {
 	}
 }
 
-function createTask() {
+async function createTask() {
 	if (todo.title.length > 0) {
-		let tasks = JSON.parse(localStorage.getItem("tasks") as string) || [];
-		tasks = [todo, ...tasks];
-		localStorage.setItem("tasks", JSON.stringify(tasks));
+		await postTodo(todo);
 		router.push({ name: "list" });
 		toast("New task created!", {
 			type: "success",
@@ -139,6 +138,7 @@ function createTask() {
 			</label>
 		</section>
 		<button
+			tabindex="10"
 			@keydown.enter="createTask"
 			@click="createTask"
 			class="revertBtn p-3 mt-10 float-right">
@@ -146,3 +146,4 @@ function createTask() {
 		</button>
 	</main>
 </template>
+../composables/tools/getDate

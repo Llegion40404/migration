@@ -28,4 +28,6 @@ export let datetime =
 	":" +
 	(String(currentdate.getMinutes()).length == 1
 		? "0" + currentdate.getUTCMinutes()
-		: currentdate.getUTCMinutes());
+		: currentdate.getUTCMinutes()) +
+	":" +
+	currentdate.getSeconds();

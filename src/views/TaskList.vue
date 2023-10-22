@@ -3,34 +3,67 @@ import { onMounted, ref, type Ref } from "vue";
 import TaskItem from "../components/TaskItem.vue";
 import { type Task } from "../types/Task";
 import { toast } from "vue3-toastify";
-import { immutable } from "../composables/immutable";
+import { immutable } from "../composables/tools/immutable";
+import { getTodos } from "../composables/API/getTodos";
+import { deleteTodo } from "../composables/API/deleteTodo";
+import { postTodo } from "../composables/API/postTodo";
+import { updateTodo } from "../composables/API/updateTodo";
+import { saveProject } from "../composables/tools/saveProject";
+import { getProject } from "../composables/API/getProject";
+import { type Project } from "../types/Project";
+
 const filters = [
-	"Priority",
-	"Name",
-	"Completed",
-	"In progress",
-	"Todo",
+	"Title",
 	"Newest",
 	"Oldest",
+	"Priority",
+	"Todo",
+	"Completed",
+	"In progress",
 ];
 const tasks: Ref<Task[]> = ref([]);
 const using: Ref<string[]> = ref([]);
 
 let old: Task[] = [];
-function deleteTask(id: string) {
+
+async function initProject() {
+	try {
+		let res2 = await getProject();
+		const currentProject: Project = res2.find(
+			(v: Project) => v.lastUsed == true
+		);
+		old = immutable(tasks.value);
+		const res = await getTodos(currentProject.id);
+		tasks.value = res;
+		document.title = currentProject.title
+			? currentProject.title
+			: "Create your project!";
+	} catch (e) {
+		toast.error("Error while initializing site! " + e);
+	}
+}
+
+async function deleteTask(id: string) {
 	try {
 		let idx = tasks.value.findIndex((t) => t.id == id);
+
 		toast(
-			`Deleted task\n\nTitle: ${old[idx].title}\n\ID: ${old[idx].id}\n\n<b>Click on me to revert changes</b>`,
+			`Deleted task\n\nTitle: ${tasks.value[idx].title}\n\ID: ${tasks.value[idx].id}\n\n<b>Click on me to revert changes</b>`,
 			{
 				type: "warning",
+				toastClassName: "cursor-pointer",
 				autoClose: 6000,
-				onClick: revert,
-				containerId: "toastify",
+				onClick(event) {
+					revert(old[idx].id as string);
+				},
+				closeOnClick: true,
+				dangerouslyHTMLString: true,
 			}
 		);
-		tasks.value = tasks.value.filter((task) => task.id !== id);
-		localStorage.setItem("tasks", JSON.stringify(tasks.value));
+		await deleteTodo(
+			(tasks.value[idx].id as string) || (old[idx].id as string)
+		);
+		tasks.value = await getTodos();
 	} catch (e) {
 		toast("Error: " + e, { type: "error" });
 	}
@@ -39,31 +72,64 @@ const addFilter = (str: string) => {
 	let found = filters.find((val) => val == str) as string;
 	if (!using.value.includes(found)) {
 		using.value.push(found);
+		// useFilter();
 	}
 };
 const deleteFilter = (str: string) => {
 	let idx = using.value.findIndex((val) => val == str);
 	using.value.splice(idx, 1);
+	// useFilter();
 };
-// function useFilter() {}
-function saveTasks() {
-	old = immutable(tasks.value);
-	localStorage.setItem("tasks", JSON.stringify(tasks.value));
-}
-function revert() {
-	tasks.value = immutable(old);
-	localStorage.setItem("tasks", JSON.stringify(tasks.value));
-}
+// function useFilter(filter: string = "temp") {
+// 	tasks.value.sort((tsk, tsk2) => {
+// 		if (
+// 			tsk.title < tsk2.title ||
+// 			tsk.priority < tsk2.priority ||
+// 			tsk.createdAt < tsk2.createdAt
+// 		) {
+// 			return 1;
+// 		}
+// 		if (
+// 			tsk.title > tsk2.title ||
+// 			tsk.priority > tsk2.priority ||
+// 			tsk.createdAt > tsk2.createdAt
+// 		) {
+// 			return -1;
+// 		}
+// 		return 0;
+// 	});
+// }
 
-onMounted(() => {
-	tasks.value = JSON.parse(localStorage.getItem("tasks")!) || [];
+async function saveTasks(todo: Task) {
+	let idx = tasks.value.findIndex((v) => v.id === todo.id);
+	await updateTodo(tasks.value[idx]);
 	old = immutable(tasks.value);
+}
+async function revert(id: string) {
+	let returnTodo = old.find((v) => v.id === id);
+	tasks.value = immutable(old);
+	await postTodo(returnTodo as Task);
+	let res = await getTodos();
+	tasks.value = res;
+}
+onMounted(async () => {
+	// saveProject({
+	// 	title: "New project",
+	// 	ID: "skdbfksbdfbdkf",
+	// 	createdAt: "asdasd",
+	// 	length: 10,
+	// 	link: "asdjsajb",
+	// });
+	try {
+		initProject();
+	} catch (error) {
+		toast("Error while fetching data" + error, { type: "error" });
+	}
 });
 </script>
 
 <template>
 	<section>
-		<div id="toastify"></div>
 		<section
 			class="bg-stone-700 mx-auto w-1/2 p-5 flex items-center justify-between">
 			<h3>Filter by:</h3>
@@ -86,7 +152,9 @@ onMounted(() => {
 			</div>
 		</section>
 		<div class="container">
-			<div class="flex items-start flex-wrap justify-between py-10 gap-10">
+			<div
+				v-if="tasks.length > 0"
+				class="flex items-start flex-wrap justify-between py-10 gap-10">
 				<TransitionGroup :duration="500">
 					<TaskItem
 						@save-task="saveTasks"
@@ -96,6 +164,7 @@ onMounted(() => {
 						:task="task" />
 				</TransitionGroup>
 			</div>
+			<h1 v-else class="text-center mt-10 text-emerald-500">List is empty!</h1>
 		</div>
 	</section>
 </template>
@@ -115,3 +184,5 @@ onMounted(() => {
 	z-index: 9999 !important;
 }
 </style>
+../composables/saveProject
+../composables/tools/immutable../composables/tools/saveProject

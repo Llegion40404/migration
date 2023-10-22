@@ -1,4 +1,4 @@
-import type { Task, TaskChild } from "../types/Task";
+import type { Task, TaskChild } from "../../types/Task";
 
 export const compareArrays = (a: Task, b: Task) => {
 	let options = a.options.every(

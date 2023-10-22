@@ -2,7 +2,7 @@
 import { ref, type Ref } from "vue";
 import { type Task } from "../types/Task";
 import { toast } from "vue3-toastify";
-import { immutable } from "../composables/immutable";
+import { immutable } from "../composables/tools/immutable";
 
 const props = defineProps<{
 	task: Task;
@@ -12,7 +12,7 @@ const editing = ref(false);
 const open = ref(false);
 
 const todo = ref(props.task);
-const dom: Ref<HTMLDivElement> = ref(null);
+const dom = ref(HTMLElement);
 const optVal = ref("");
 const isOptOpen = ref(false);
 
@@ -22,12 +22,12 @@ let old = immutable(props.task);
 function scroll() {
 	dom.value.scrollTo({ top: 0 });
 }
-function saveChanges() {
+async function saveChanges() {
 	scroll();
 	old = immutable(todo.value);
 	open.value = false;
 	editing.value = false;
-	emits("saveTask");
+	emits("saveTask", todo.value);
 	toast("Saved changes!", { type: "success" });
 }
 
@@ -190,7 +190,7 @@ function addOpt() {
 					Add option
 				</button>
 				<div class="flex items-center gap-2">
-					<p v-show="todo.options.length > 0">Options:</p>
+					<p v-show="todo?.options?.length > 0">Options:</p>
 					<label
 						v-for="opt in todo?.options"
 						:key="opt.text"
@@ -329,3 +329,4 @@ function addOpt() {
 	display: none;
 }
 </style>
+../composables/tools/immutable
