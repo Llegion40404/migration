@@ -3,7 +3,7 @@ import axios from "axios";
 export async function getTodos(link: string) {
 	try {
 		if (link.length > 0) {
-			const res = await axios.get(`http://localhost:8080/todos?prId=${link}`);
+			const res = await axios.get(`http://localhost:8043/todos?prId=${link}`);
 
 			return res.data;
 		}
