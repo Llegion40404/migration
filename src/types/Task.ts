@@ -7,10 +7,11 @@ export type Task = {
 	title: string;
 	description: string;
 	options: Opt[];
-	completed: string;
+	completed: { num: number; is: string };
 	createdAt: string;
-	tasks: Array<TaskChild>;
 	priority: number;
+	prId: string;
+	date: string;
 };
 export type TaskChild = {
 	id: number | string;

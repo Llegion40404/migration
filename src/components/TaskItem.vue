@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref } from "vue";
+import { ref } from "vue";
 import { type Task } from "../types/Task";
 import { toast } from "vue3-toastify";
 import { immutable } from "../composables/tools/immutable";
@@ -15,8 +15,11 @@ const todo = ref(props.task);
 const dom = ref(HTMLElement);
 const optVal = ref("");
 const isOptOpen = ref(false);
-
-const conditions = ["done", "in-progress", "todo"];
+const conditions = [
+	{ num: 30, is: "done" },
+	{ num: 20, is: "in-progress" },
+	{ num: 10, is: "todo" },
+];
 let old = immutable(props.task);
 
 function scroll() {
@@ -105,17 +108,17 @@ function addOpt() {
 					</span>
 					<div v-show="!editing">
 						<span
-							v-show="todo.completed == 'in-progress'"
+							v-show="todo.completed.is == 'in-progress'"
 							class="text-xs float-right">
 							In progress...<span class="loader float-right ml-3"></span
 						></span>
 						<img
-							v-show="todo.completed == 'todo'"
+							v-show="todo.completed.is == 'todo'"
 							src="../assets/todo.png"
 							class="float-right"
 							width="40" />
 						<i
-							v-show="todo.completed == 'done'"
+							v-show="todo.completed.is == 'done'"
 							class="text-lime-500 text-5xl float-right"
 							>&#10003;</i
 						>
@@ -146,8 +149,8 @@ function addOpt() {
 					:class="editing ? '' : 'reading'"
 					name="condition"
 					id="condition">
-					<option v-for="cond in conditions" :key="cond" :value="cond">
-						{{ cond }}
+					<option v-for="cond in conditions" :key="cond.num" :value="cond.is">
+						{{ cond.is }}
 					</option>
 				</select>
 			</div>
@@ -194,8 +197,8 @@ function addOpt() {
 					<label
 						v-for="opt in todo?.options"
 						:key="opt.text"
-						class="group hover:bg-gray-600 px-3 py-1 max-w-[30%] relative rounded-md duration-500"
-						:class="editing && opt.is ? 'bg-emerald-600' : 'bg-red-900'">
+						class="group px-3 py-1 max-w-[30%] relative rounded-md duration-500"
+						:class="opt.is ? 'bg-emerald-600' : 'bg-red-900'">
 						<input
 							type="checkbox"
 							class="hidden"
@@ -329,4 +332,3 @@ function addOpt() {
 	display: none;
 }
 </style>
-../composables/tools/immutable

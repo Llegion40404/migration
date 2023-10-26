@@ -5,19 +5,28 @@ import { v4 as uid } from "uuid";
 import type { Task } from "../types/Task";
 import { toast } from "vue3-toastify";
 import router from "../router/index";
-import { postTodo } from "../composables/API/postTodo";
+import { postTodo } from "../composables/API/Todo/postTodo";
+import type { Project } from "../types/Project";
+
+const props = defineProps<{ project: Project; items: Task[] }>();
 
 const todo: Task = reactive({
 	id: uid(),
 	title: "",
 	description: "",
 	options: [],
-	completed: "todo",
-	createdAt: datetime,
+	completed: { num: 10, is: "todo" },
+	createdAt: datetime(),
 	priority: 1,
+	prId: props.project.id,
+	date: Date(),
 });
 
-const conditions = ["done", "in-progress", "todo"];
+const conditions = [
+	{ num: 30, is: "done" },
+	{ num: 20, is: "in-progress" },
+	{ num: 10, is: "todo" },
+];
 
 const optVal = ref("");
 const isOptOpen = ref(false);
@@ -39,22 +48,23 @@ function addOpt() {
 }
 
 async function createTask() {
-	if (todo.title.length > 0) {
-		await postTodo(todo);
-		router.push({ name: "list" });
-		toast("New task created!", {
-			type: "success",
-			hideProgressBar: true,
-			closeOnClick: true,
-		});
-	} else {
-		toast(`Fill in the "Title" field at least!`, {
-			type: "error",
-		});
+	try {
+		if (todo.title.length > 0) {
+			await postTodo(todo);
+			router.push({ name: "list" });
+			toast("New task created!", {
+				type: "success",
+				hideProgressBar: true,
+				closeOnClick: true,
+			});
+		} else {
+			toast(`Fill in the "Title" field at least!`, {
+				type: "info",
+			});
+		}
+	} catch (e) {
+		toast.error("Error while creating new task: " + e);
 	}
-	todo.description = "";
-	todo.title = "";
-	todo.options = [];
 }
 </script>
 
@@ -126,8 +136,10 @@ async function createTask() {
 			</article>
 			<label for="completed">
 				Status:
-				<select v-model="todo.completed" id="completed" class="input">
-					<option v-for="cond in conditions" :value="cond">{{ cond }}</option>
+				<select v-model="todo.completed.is" id="completed" class="input">
+					<option v-for="cond in conditions" :value="cond.is">
+						{{ cond.is }}
+					</option>
 				</select>
 			</label>
 			<label for="priority">
@@ -146,4 +158,3 @@ async function createTask() {
 		</button>
 	</main>
 </template>
-../composables/tools/getDate

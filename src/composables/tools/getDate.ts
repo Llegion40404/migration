@@ -14,20 +14,23 @@ const monthNames = [
 	"November",
 	"December",
 ];
-let currentdate = new Date();
 
-export let datetime =
-	"Created: " +
-	monthNames[currentdate.getMonth()] +
-	" " +
-	currentdate.getDate() +
-	" /" +
-	currentdate.getFullYear() +
-	" at " +
-	currentdate.getHours() +
-	":" +
-	(String(currentdate.getMinutes()).length == 1
-		? "0" + currentdate.getUTCMinutes()
-		: currentdate.getUTCMinutes()) +
-	":" +
-	currentdate.getSeconds();
+export let datetime = () => {
+	let currentdate = new Date();
+	return (
+		"Created: " +
+		monthNames[currentdate.getMonth()] +
+		" " +
+		currentdate.getDate() +
+		" /" +
+		currentdate.getFullYear() +
+		" at " +
+		currentdate.getHours() +
+		":" +
+		(String(currentdate.getMinutes()).length == 1
+			? "0" + currentdate.getMinutes()
+			: currentdate.getMinutes()) +
+		":" +
+		currentdate.getSeconds()
+	);
+};
